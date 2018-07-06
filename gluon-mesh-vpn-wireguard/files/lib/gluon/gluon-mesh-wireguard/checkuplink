@@ -1,0 +1,68 @@
+#!/bin/sh
+
+#cd /lib/gluon/gluon-mesh-wireguard
+
+if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
+
+        CONNECTED=1
+
+        INTERFACE=$(uci get wireguard.wireguard.iface)
+
+        # Wireguardinterface vorhanden???
+        ip addr show dev $INTERFACE > /dev/null
+        if [ $? != 0 ]; then
+                CONNECTED=0
+        fi
+
+
+        # Gretapinterface vorhanden??
+        if [ $CONNECTED != 0 ]; then
+                ip addr show dev gre > /dev/null
+                if [ $? != 0 ]; then
+                        CONNECTED=0
+                fi
+        fi
+
+        # Funktioniert das Gretapinterface ueberhaupt? Also gehen Daten rueber?
+        if [ $CONNECTED != 0 ]; then
+                RXBYTES=$(ip -statistics link show dev gre |  sed '4q;d' | awk '{print $1}')
+                if [ $RXBYTES == 0 ]; then
+                        CONNECTED=0
+                fi
+        fi
+
+        # Und funktioniert das Wireguardinterface? Kann ich den Server erreichen?
+        if [ $CONNECTED != 0 ]; then
+                ping -c1 -w2  $(uci get wireguard.peer_1.gretapip)
+                if [ $? != 0 ]; then
+                        CONNECTED=0
+                fi
+        fi
+
+	# Wenn die Tests fehlgeschlagen sind, neu connecten
+        if [ $CONNECTED == 0 ]; then
+                batctl if del gre
+		ip link delete dev gre
+                ip link delete dev $INTERFACE
+                PUBLICKEY=$(uci get wireguard.wireguard.privatekey | wg pubkey)
+                echo $(uci get wireguard.wireguard.privatekey) > /tmp/wgpriv
+
+                # Public Key zu bonn2 hochladen
+                IP=$(curl --data-urlencode "pubkey="$PUBLICKEY https://bonn2.kbu.freifunk.net/wireguard.php)
+
+                ip link add dev $INTERFACE type wireguard
+                ip address add dev $INTERFACE $IP/16
+                wg set $INTERFACE private-key /tmp/wgpriv
+
+                sleep 5
+
+                wg set $INTERFACE peer $(uci get wireguard.peer_1.publickey) persistent-keepalive 25 allowed-ips $(uci get wireguard.peer_1.gretapip)/32 endpoint $(uci get wireguard.peer_1.endpoint)
+                ip link set up dev $INTERFACE
+
+                sleep 5
+                ip link add gre type gretap local $IP remote $(uci get wireguard.peer_1.gretapip)
+                ip link set up dev gre
+                sleep 5
+                batctl if add gre
+        fi
+fi
