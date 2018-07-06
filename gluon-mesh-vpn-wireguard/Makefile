@@ -5,7 +5,7 @@ PKG_VERSION:=1
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
-include ../gluon.mk
+include $(TOPDIR)/../package/gluon.mk
 
 define Package/gluon-mesh-vpn-wireguard
   SECTION:=gluon
