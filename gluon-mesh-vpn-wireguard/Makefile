@@ -11,7 +11,7 @@ define Package/gluon-mesh-vpn-wireguard
   SECTION:=gluon
   CATEGORY:=Gluon
   TITLE:=Support for connecting meshes via wireguard
-  DEPENDS:=gluon-config-mode-core-virtual +gluon-mesh-vpn-core +gluon-core +micrond +kmod-gre +kmod-wireguard +wireguard-tools +kmod-udptunnel4 +kmod-ipt-hashlimit +curl +ca-bundle
+  DEPENDS:=+gluon-mesh-vpn-core +gluon-core +micrond +kmod-gre +kmod-wireguard +wireguard-tools +kmod-udptunnel4 +curl +ca-bundle
 endef
 
 define Build/Prepare
