@@ -64,5 +64,9 @@ if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
                 ip link set up dev gre
                 sleep 5
                 batctl if add gre
+		iptables -A INPUT -i $INTERFACE -m state --state NEW -j ACCEPT
+		iptables -A INPUT -i $INTERFACE -j ACCEPT
+		iptables -A FORWARD -i $INTERFACE -j ACCEPT
+
         fi
 fi
