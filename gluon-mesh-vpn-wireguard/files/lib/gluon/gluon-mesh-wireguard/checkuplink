@@ -48,7 +48,7 @@ if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
                 echo $(uci get wireguard.wireguard.privatekey) > /tmp/wgpriv
 
                 # Public Key zu bonn2 hochladen
-                IP=$(curl --data-urlencode "pubkey="$PUBLICKEY https://bonn2.kbu.freifunk.net/wireguard.php)
+                IP=$(curl -k --data-urlencode "pubkey="$PUBLICKEY https://bonn2.kbu.freifunk.net/wireguard.php)
 
                 ip link add dev $INTERFACE type wireguard
                 ip address add dev $INTERFACE $IP/16
