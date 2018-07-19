@@ -6,31 +6,32 @@ PKG_VERSION:=1
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
+include ../gluon.mk
 
 define Package/gluon-mesh-vpn-wireguard
   SECTION:=gluon
   CATEGORY:=Gluon
   TITLE:=Support for connecting meshes via wireguard
-  DEPENDS:=+gluon-mesh-vpn-core +gluon-core +micrond +kmod-gre +kmod-wireguard +wireguard-tools +kmod-udptunnel4 +curl +ca-bundle
+  DEPENDS:=+gluon-mesh-vpn-core +gluon-config-mode-core +micrond +kmod-gre +kmod-wireguard +wireguard-tools +kmod-udptunnel4 +curl +ca-bundle
 endef
 
 define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
+        mkdir -p $(PKG_BUILD_DIR)
 endef
 
 define Build/Configure
 endef
 
 define Build/Compile
-	$(call GluonBuildI18N,gluon-mesh-vpn-wireguard,i18n)
+        $(call GluonBuildI18N,gluon-mesh-vpn-wireguard,i18n)
 endef
 
 define Package/gluon-mesh-vpn-wireguard/install
-	$(CP) ./files/* $(1)/
-	$(call GluonInstallI18N,gluon-mesh-vpn-wireguard,$(1))
+        $(CP) ./files/* $(1)/
+        $(call GluonInstallI18N,gluon-mesh-vpn-wireguard,$(1))
 endef
 
 define Package/gluon-mesh-vpn-wireguard/postinst
 endef
 
-$(eval $(call BuildPackage,gluon-mesh-vpn-wireguard))
+$(eval $(call BuildPackageGluon,gluon-mesh-vpn-wireguard))
