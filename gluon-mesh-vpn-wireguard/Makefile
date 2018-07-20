@@ -6,7 +6,6 @@ PKG_VERSION:=1
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
-include ../gluon.mk
 
 define Package/gluon-mesh-vpn-wireguard
   SECTION:=gluon
@@ -34,4 +33,4 @@ endef
 define Package/gluon-mesh-vpn-wireguard/postinst
 endef
 
-$(eval $(call BuildPackageGluon,gluon-mesh-vpn-wireguard))
+$(eval $(call BuildPackage,gluon-mesh-vpn-wireguard))
