@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#rm /etc/config/wireguard
+rm /etc/config/wireguard
 touch /etc/config/wireguard
 
 uci set wireguard.wireguard=wireguard
