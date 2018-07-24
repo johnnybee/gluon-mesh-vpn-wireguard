@@ -10,7 +10,7 @@ uci set wireguard.wireguard.iface=$(jsonfilter -i /lib/gluon/site.json  -e "$.me
 uci set wireguard.wireguard.iprange=$(jsonfilter -i /lib/gluon/site.json  -e "$.mesh_vpn.wireguard.iprange")
 uci set wireguard.wireguard.privatekey=$(wg genkey)
 uci set wireguard.wireguard.limit=$(jsonfilter -i /lib/gluon/site.json  -e "$.mesh_vpn.wireguard.limit")
-
+uci set wireguard.wireguard.gretapip=$(jsonfilter -i /lib/gluon/site.json  -e "$.mesh_vpn.wireguard.gretapip")
 
 #Wieviele peers haben wir denn?
 anzahl=$(jsonfilter -i /lib/gluon/site.json  -e "$.mesh_vpn.wireguard.peers.*" | wc -l)
@@ -22,7 +22,6 @@ do
 	uci set wireguard.peer_$(expr $i + 1)=peer
 	uci set wireguard.peer_$(expr $i + 1).endpoint=$(jsonfilter -i /lib/gluon/site.json  -e "$.mesh_vpn.wireguard.peers[$i].endpoint")
 	uci set wireguard.peer_$(expr $i + 1).publickey=$(jsonfilter -i /lib/gluon/site.json  -e "$.mesh_vpn.wireguard.peers[$i].publickey")
-	uci set wireguard.peer_$(expr $i + 1).gretapip=$(jsonfilter -i /lib/gluon/site.json  -e "$.mesh_vpn.wireguard.peers[$i].gretapip")	
 	i=`expr $i + 1`
 done
 
