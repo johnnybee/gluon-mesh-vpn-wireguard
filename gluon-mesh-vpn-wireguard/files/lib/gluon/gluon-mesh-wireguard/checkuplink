@@ -4,6 +4,25 @@
 
 if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
 
+        #Wieviele Hosts gibts denn in der Config?
+        MAX=10
+        ANZAHL=0
+        AUSWAHL=0
+        until [ $ANZAHL -eq $MAX ]
+        do
+                ANZAHL=`expr $ANZAHL + 1`
+                uci show wireguard.peer_$ANZAHL 2>/dev/null > /dev/null
+                if [ $? != 0 ]; then
+                        break
+                fi
+        done
+        ANZAHL=`expr $ANZAHL - 1`
+
+        #Und welchen nehmen wir jetzt??
+        AUSWAHL=$(( $(tr -cd 1-$ANZAHL </dev/urandom | head -c 1) % 60))
+        URL=$(uci get wireguard.peer_$AUSWAHL.endpoint | cut -d':' -f1)
+
+        #Ab hier kommen die Tests, ob die Verbindung steht
         CONNECTED=1
 
         INTERFACE=$(uci get wireguard.wireguard.iface)
@@ -13,7 +32,6 @@ if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
         if [ $? != 0 ]; then
                 CONNECTED=0
         fi
-
 
         # Gretapinterface vorhanden??
         if [ $CONNECTED != 0 ]; then
@@ -33,22 +51,22 @@ if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
 
         # Und funktioniert das Wireguardinterface? Kann ich den Server erreichen?
         if [ $CONNECTED != 0 ]; then
-                ping -c1 -w2  $(uci get wireguard.peer_1.gretapip)
+                ping -c1 -w2  $(uci get wireguard.wireguard.gretapip)
                 if [ $? != 0 ]; then
                         CONNECTED=0
                 fi
         fi
-
-	# Wenn die Tests fehlgeschlagen sind, neu connecten
+	
+        # Wenn die Tests fehlgeschlagen sind, neu connecten
         if [ $CONNECTED == 0 ]; then
                 batctl if del gre
-		ip link delete dev gre
+                ip link delete dev gre
                 ip link delete dev $INTERFACE
                 PUBLICKEY=$(uci get wireguard.wireguard.privatekey | wg pubkey)
                 echo $(uci get wireguard.wireguard.privatekey) > /tmp/wgpriv
 
-                # Public Key zu bonn2 hochladen
-                IP=$(curl -k --data-urlencode "pubkey="$PUBLICKEY https://bonn2.kbu.freifunk.net/wireguard.php)
+                # Public Key zum vorher ausgesuchten Server hochladen
+                IP=$(curl -k --data-urlencode "pubkey=$PUBLICKEY" https://$URL/wireguard.php)
 
                 ip link add dev $INTERFACE type wireguard
                 ip address add dev $INTERFACE $IP/16
@@ -56,17 +74,17 @@ if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
 
                 sleep 5
 
-                wg set $INTERFACE peer $(uci get wireguard.peer_1.publickey) persistent-keepalive 25 allowed-ips $(uci get wireguard.peer_1.gretapip)/32 endpoint $(uci get wireguard.peer_1.endpoint)
+                wg set $INTERFACE peer $(uci get wireguard.peer_$AUSWAHL.publickey) persistent-keepalive 25 allowed-ips $(uci get wireguard.wireguard.gretapip)/32 endpoint $(uci get wireguard.peer_$AUSWAHL.endpoint)
                 ip link set up dev $INTERFACE
 
                 sleep 5
-                ip link add gre type gretap local $IP remote $(uci get wireguard.peer_1.gretapip)
+                ip link add gre type gretap local $IP remote $(uci get wireguard.wireguard.gretapip)
                 ip link set up dev gre
                 sleep 5
                 batctl if add gre
-		iptables -A INPUT -i $INTERFACE -m state --state NEW -j ACCEPT
-		iptables -A INPUT -i $INTERFACE -j ACCEPT
-		iptables -A FORWARD -i $INTERFACE -j ACCEPT
+                iptables -A INPUT -i $INTERFACE -m state --state NEW -j ACCEPT
+                iptables -A INPUT -i $INTERFACE -j ACCEPT
+                iptables -A FORWARD -i $INTERFACE -j ACCEPT
 
         fi
 fi
