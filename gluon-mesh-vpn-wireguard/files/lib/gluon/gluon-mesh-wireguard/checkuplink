@@ -60,8 +60,7 @@ if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
         # Wenn die Tests fehlgeschlagen sind, neu connecten
         if [ $CONNECTED == 0 ]; then
 		#Die alten peers löschen
-	        wg set $INTERFACE peer MwgDvHjM9GuBCeySqbcbhu2hrYaB5hkMA35OZKz0inM= remove
-                wg set $INTERFACE peer qUc5N5GH5b4e/Io8WiL2O3rcK7toDSDbUMUE8GHtBCg= remove
+		wg set mesh-vpn peer  $(wg |  awk 'BEGIN {RS=""} /endpoint/ {print $2}') remove
                 batctl if del gre
                 ip link delete dev gre
                 ip link delete dev $INTERFACE
