@@ -1,3 +1,5 @@
+local site_i18n = i18n 'gluon-site'
+
 local uci = require("simple-uci").cursor()
 local lutil = require "gluon.web.util"
 local fs = require "nixio.fs"
