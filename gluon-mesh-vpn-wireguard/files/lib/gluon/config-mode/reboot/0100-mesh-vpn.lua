@@ -4,7 +4,7 @@ local uci = require("simple-uci").cursor()
 local lutil = require "gluon.web.util"
 local unistd = require 'posix.unistd'
 
-local site = require 'gluon.site_config'
+local site = require 'gluon.site'
 local sysconfig = require 'gluon.sysconfig'
 local util = require "gluon.util"
 
