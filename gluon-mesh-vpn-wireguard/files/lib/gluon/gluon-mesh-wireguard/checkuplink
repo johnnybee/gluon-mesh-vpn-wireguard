@@ -68,7 +68,7 @@ if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
                 echo $(uci get wireguard.wireguard.privatekey) > /tmp/wgpriv
 
                 # Public Key zum vorher ausgesuchten Server hochladen
-                IP=$(curl -k --data-urlencode "pubkey=$PUBLICKEY" https://$URL/wireguard.php)
+                IP=$(curl -s -k --data-urlencode "pubkey=$PUBLICKEY" https://$URL/wireguard.php > /dev/null)
 
                 ip link add dev $INTERFACE type wireguard
                 ip address add dev $INTERFACE $IP/16
