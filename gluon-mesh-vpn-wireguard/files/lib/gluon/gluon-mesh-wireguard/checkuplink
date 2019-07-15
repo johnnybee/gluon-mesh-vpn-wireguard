@@ -4,6 +4,7 @@
 
 if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
 
+        modprobe wireguard
         #Wieviele Hosts gibts denn in der Config?
         MAX=10
         ANZAHL=0
