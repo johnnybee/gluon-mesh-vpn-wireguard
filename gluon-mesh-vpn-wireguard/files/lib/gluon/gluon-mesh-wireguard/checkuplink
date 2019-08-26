@@ -1,27 +1,6 @@
 #!/bin/sh
 
-#cd /lib/gluon/gluon-mesh-wireguard
-
 if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
-
-        modprobe wireguard
-        #Wieviele Hosts gibts denn in der Config?
-        MAX=10
-        ANZAHL=0
-        AUSWAHL=0
-        until [ $ANZAHL -eq $MAX ]
-        do
-                ANZAHL=`expr $ANZAHL + 1`
-                uci show wireguard.peer_$ANZAHL 2>/dev/null > /dev/null
-                if [ $? != 0 ]; then
-                        break
-                fi
-        done
-        ANZAHL=`expr $ANZAHL - 1`
-
-        #Und welchen nehmen wir jetzt??
-        AUSWAHL=$(( $(tr -cd 1-$ANZAHL </dev/urandom | head -c 1) % 60))
-        URL=$(uci get wireguard.peer_$AUSWAHL.endpoint | cut -d':' -f1)
 
         #Ab hier kommen die Tests, ob die Verbindung steht
         CONNECTED=1
@@ -60,7 +39,43 @@ if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
 	
         # Wenn die Tests fehlgeschlagen sind, neu connecten
         if [ $CONNECTED == 0 ]; then
-		#Die alten peers löschen
+
+		# Falls ein Fehler bei Wireguard war, Module entladen und neuladen
+		rmmod wireguard
+		sleep 1
+		modprobe wireguard
+
+        	#Wieviele Hosts gibts denn in der Config?                                                          
+        	MAX=10                                                                                             
+        	ANZAHL=0                                                                                           
+        	AUSWAHL=0                                                                                          
+       	 	until [ $ANZAHL -eq $MAX ]                                                                         
+       	 	do                                                                                                 
+                	ANZAHL=`expr $ANZAHL + 1`                                                                  
+                	uci show wireguard.peer_$ANZAHL 2>/dev/null > /dev/null                                    
+                	if [ $? != 0 ]; then                                                                       
+                        	break                                                                              
+                	fi                                                                                         
+        	done                                                                                               
+        	ANZAHL=`expr $ANZAHL - 1`                                                                          
+                                                                                                           
+        	#Und welchen nehmen wir jetzt??                                                                    
+        	SPEED1=0                                                                                           
+        	I=0                                                                                                
+        	until [ $I -eq $ANZAHL ]                                                                           
+        	do                                                                                                 
+                	I=`expr $I + 1`                                                                            
+                	#Von allen Servern die durschnittliche potenzielle Geschwindigkeit pro Wireguard-Verbindung
+                	URL=$(uci get wireguard.peer_$I.endpoint | cut -d':' -f1)                        
+			SPEED2=$(curl https://$URL/speed.php -k)                                           
+                	if [ $SPEED2 -gt $SPEED1 ]              # Wenn aktueller Server hoehren Wert hat,
+                        		then AUSWAHL=$I                 # Servernummer speichern                 
+                        	SPEED1=$SPEED2                                                           
+                	fi                                                                               
+        	done                                                                                     
+        	URL=$(uci get wireguard.peer_$AUSWAHL.endpoint | cut -d':' -f1)                          
+                                                                                                 
+		#Die alten peers loeschen
 		wg set $INTERFACE peer  $(wg |  awk 'BEGIN {RS=""} /endpoint/ {print $2}') remove
                 batctl if del gre
                 ip link delete dev gre
@@ -70,11 +85,9 @@ if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
 
                 # Public Key zum vorher ausgesuchten Server hochladen
                 IP=$(curl -s -k --data-urlencode "pubkey=$PUBLICKEY" https://$URL/wireguard.php)
-
-                ip link add dev $INTERFACE type wireguard
+		ip link add dev $INTERFACE type wireguard
                 ip address add dev $INTERFACE $IP/16
                 wg set $INTERFACE private-key /tmp/wgpriv
-
                 sleep 5
 
                 wg set $INTERFACE peer $(uci get wireguard.peer_$AUSWAHL.publickey) persistent-keepalive 25 allowed-ips $(uci get wireguard.wireguard.gretapip)/32 endpoint $(uci get wireguard.peer_$AUSWAHL.endpoint)
