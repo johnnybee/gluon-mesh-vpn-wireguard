@@ -9,7 +9,7 @@ You should use something like the following in the site.conf:
  mesh_vpn = {
         mtu = 1420,
         wireguard = {
-                enabled = '1',
+                enabled = 'true',
                 iface = 'mesh-vpn',
                 iprange = '10.3', --must be a /16!!
                 limit = '1', -- actually unused
