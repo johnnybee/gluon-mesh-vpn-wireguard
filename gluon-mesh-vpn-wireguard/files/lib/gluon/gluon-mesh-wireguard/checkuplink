@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "$(uci get wireguard.wireguard.enabled)" -eq 1 ]; then
+if [ "$(uci get wireguard.wireguard.enabled)" == "true" ]; then
 
         #Ab hier kommen die Tests, ob die Verbindung steht
         CONNECTED=1
