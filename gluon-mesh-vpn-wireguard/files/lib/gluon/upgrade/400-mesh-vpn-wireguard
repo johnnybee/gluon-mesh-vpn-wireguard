@@ -17,8 +17,7 @@ fi
 
 uci set wireguard.wireguard.enabled=$(jsonfilter -i $datei -e "$.mesh_vpn.wireguard.enabled")
 uci set wireguard.wireguard.iface=$(jsonfilter -i $datei  -e "$.mesh_vpn.wireguard.iface")   
-uci set wireguard.wireguard.iprange=$(jsonfilter -i $datei  -e "$.mesh_vpn.wireguard.iprange")
-uci set wireguard.wireguard.privatekey=$(wg genkey)                                           
+uci set wireguard.wireguard.iprange=$(jsonfilter -i $datei  -e "$.mesh_vpn.wireguard.iprange")                                         
 uci set wireguard.wireguard.limit=$(jsonfilter -i $datei -e "$.mesh_vpn.wireguard.limit")     
 uci set wireguard.wireguard.gretapip=$(jsonfilter -i $datei  -e "$.mesh_vpn.wireguard.gretapip")
                                                                                                 
