@@ -5,7 +5,7 @@ temp=$(uci get wireguard.wireguard.privatekey);
 #Falls nicht, wird das hier nachgeholt
 if [ "$?" -ne "0" ]; then
         uci set wireguard.wireguard.privatekey=$(wg genkey);
-        uci commit
+        uci commit wireguard
 fi
 
 #Ist wireguard überhaupt aktiviert??
