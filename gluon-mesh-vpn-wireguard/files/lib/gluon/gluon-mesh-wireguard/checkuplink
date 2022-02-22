@@ -76,7 +76,7 @@ if [ "$(uci get wireguard.wireguard.enabled)" == "true" ] || [ "$(uci get wiregu
                 	I=`expr $I + 1`                                                                            
                 	#Von allen Servern die durschnittliche potenzielle Geschwindigkeit pro Wireguard-Verbindung
                 	URL=$(uci get wireguard.peer_$I.endpoint | cut -d':' -f1)                        
-			SPEED2=$(curl https://$URL/speed.php -k)                                           
+			SPEED2=$(curl https://$URL/speed.php -k --connect-timeout 5)                                           
                 	if [ $SPEED2 -gt $SPEED1 ]              # Wenn aktueller Server hoehren Wert hat,
                         		then AUSWAHL=$I                 # Servernummer speichern                 
                         	SPEED1=$SPEED2                                                           
