@@ -1,6 +1,6 @@
 # gluon-mesh-vpn-wireguard
 
-You can use this package for connecting with wireguard to the freifunk hood BonnV2. 
+You can use this package for connecting with wireguard to the freifunk hood BonnV2 and UmgebungV2. 
 
 You should use something like the following in the site.conf:
 
@@ -11,7 +11,7 @@ You should use something like the following in the site.conf:
         wireguard = {
                 enabled = 'true',
                 iface = 'mesh-vpn',
-                iprange = '10.3', --must be a /16!!
+                iprange = '10.3', --must be a /16!! 
                 limit = '1', -- actually unused
                 gretapip = '10.3.0.2',
                 peers = {
