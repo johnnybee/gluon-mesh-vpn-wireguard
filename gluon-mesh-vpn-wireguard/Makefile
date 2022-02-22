@@ -22,12 +22,10 @@ define Build/Configure
 endef
 
 define Build/Compile
-        $(call GluonBuildI18N,gluon-mesh-vpn-wireguard,i18n)
 endef
 
 define Package/gluon-mesh-vpn-wireguard/install
         $(CP) ./files/* $(1)/
-        $(call GluonInstallI18N,gluon-mesh-vpn-wireguard,$(1))
 endef
 
 define Package/gluon-mesh-vpn-wireguard/postinst
