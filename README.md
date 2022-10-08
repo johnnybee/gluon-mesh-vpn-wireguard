@@ -1,4 +1,4 @@
-# gluon-mesh-vpn-wireguard
+# gluon-mesh-vpn-wireguard-kbu
 
 You can use this package for connecting with wireguard to the freifunk hood BonnV2 and UmgebungV2. 
 
