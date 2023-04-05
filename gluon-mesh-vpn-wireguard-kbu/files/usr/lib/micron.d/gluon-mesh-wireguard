@@ -1,2 +1,2 @@
-* * * * * /lib/gluon/gluon-mesh-wireguard/checkuplink
+* * * * * /usr/bin/flock -n /var/lock/checkuplink.lock /lib/gluon/gluon-mesh-wireguard/checkuplink
 
